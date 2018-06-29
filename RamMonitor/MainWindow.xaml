@@ -4,10 +4,41 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RamMonitor"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="MainWindow" Height="183.476" Width="271.781">
+        Title="MainWindow" Height="46" Width="250" Background="#00FFFFFF"  AllowsTransparency="True" ShowInTaskbar="False" Topmost="True" ShowMinButton="False" ShowMaxRestoreButton="False" ShowCloseButton="False" ShowTitleBar="False" UseNoneWindowStyle="True" OverlayBrush="Black" NonActiveBorderBrush="#00808080" ResizeMode="NoResize" SaveWindowPosition="True" ShowActivated="False" IsMaxRestoreButtonEnabled="False" IsMinButtonEnabled="False" IsCloseButtonEnabled="False" WindowStyle="None" SizeToContent="WidthAndHeight">
     <Grid>
+
+        <Border Height="46" Width="250" BorderThickness="1" BorderBrush="#4C000000" Background="#E5333740" CornerRadius="4"  MouseLeftButtonDown="textBlockMain_MouseMove" >
+            <StackPanel Orientation="Horizontal" >
+                <Border BorderThickness="0,0,1,0" BorderBrush="#19FFFFFF" >
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,8,0" >
+                        <StackPanel  VerticalAlignment="Center" Margin="0,0,0,0" HorizontalAlignment="Right" >
+                            <TextBlock x:Name="textNowAmount" Text="0.0000" Foreground="#FF9BB83A" FontWeight="Bold" FontSize="18"></TextBlock>
+                            <TextBlock x:Name="textLastPercentage" Text="*" Foreground="#FF9BB83A" HorizontalAlignment="Right"></TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+
+                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" >
+                    <TextBlock Text="1分钟 " Foreground="#FFAEAEAE"></TextBlock>
+                    <TextBlock x:Name="textOneMinPercentage" Text="*" Foreground="#FFF35B8B"></TextBlock>
+                </StackPanel>
+                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" >
+                    <TextBlock Text="10分钟 " Foreground="#FFAEAEAE"></TextBlock>
+                    <TextBlock x:Name="textTenMinPercentage" Text="*" Foreground="#FFF35B8B"></TextBlock>
+                </StackPanel>
+                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" >
+                    <TextBlock Text="60分钟 " Foreground="#FFAEAEAE"></TextBlock>
+                    <TextBlock x:Name="textOneHourPercentage" Text="*" Foreground="#FFF35B8B"></TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+
+
 
     </Grid>
 </Controls:MetroWindow>

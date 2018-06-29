@@ -1,5 +1,7 @@
 ﻿using Flurl.Http;
 using MahApps.Metro.Controls;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +20,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Threading;
+using RamMonitor.Services;
+using System.ComponentModel;
 
 namespace RamMonitor
 {
@@ -26,68 +31,102 @@ namespace RamMonitor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        private bool runThread = true;
+
+
         public MainWindow()
         {
             InitializeComponent();
-            var ret =  Services.PowerShell.RunScriptText("docker -h");
-            //
+
+            //var ret =  Services.PowerShell.RunScriptText("docker -h");
+
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell\
             //ExecutionPolicy = RemoteSigned
+            //Debug.WriteLine(ret.ResultText);
+            //Services.RAM.UpdateData();
+            //Services.SuperNode.GetSpeed();
+            //test();
+            var dp = DependencyPropertyDescriptor.FromProperty(
+             TextBlock.TextProperty,
+             typeof(TextBlock));
 
-            test();
+            dp.AddValueChanged(textLastPercentage, textBlockChangeText);
+            dp.AddValueChanged(textOneMinPercentage, textBlockChangeText);
+            dp.AddValueChanged(textTenMinPercentage, textBlockChangeText);
+            dp.AddValueChanged(textOneHourPercentage, textBlockChangeText);
+
+            Task.Run(() => { ActiveThread(); } );
         }
 
-        public void test()
+        private void textBlockChangeText(object sender, EventArgs e)
         {
-
-
-            //var responseString = await "https://api.eosnewyork.io/v1/chain/get_table_rows"
-            //.PostUrlEncodedAsync(new { json = "true", code = "eosio", scope = "eosio", table = "global" })
-            //.ReceiveString();
-
-            //HttpClient client = new HttpClient();
-            //var values = new Dictionary<string, string>
-            //{
-            //   { "json", "true" },
-            //   { "code", "eosio" },
-            //    { "scope", "eosio" },
-            //   { "table", "global" }
-            //};
-            //client.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36");
-            //var content = new FormUrlEncodedContent(values);
-
-            //var response = await client.PostAsync("https://api.eosnewyork.io/v1/chain/get_table_rows", content);
-
-            //var responseString2 = await response.Content.ReadAsStringAsync();
-
-
-
-            var data = "https://www.feexplorer.io/EOS_RAM_price".GetStringAsync().Result;
-
-            /*
-                <h6>Current <span style="color:#734ce3;">RAM</span> Price</h6>
-                <p style="font-size:120%;">0.11985765 EOS per kb</p>
-                </div>
-            */
-
-
-
-
-            //Regex reg = new Regex(@"RAM</span> Price</h6>\r\n<p style=""font-size:120%;"">([0-9]*\.[0-9]*) EOS per");
-            Regex reg = new Regex(@"([0-9]*\.[0-9]*) EOS per");
-            var match = reg.Match(data);
-            Debug.WriteLine(data);
-            var groups = match.Groups;
-            foreach (Group item in groups)
+            TextBlock text = (TextBlock)sender;
+            if (text.Text.Contains("+"))
             {
-                Debug.WriteLine(item.ToString());
+                text.Foreground = new SolidColorBrush(Color.FromArgb(255, 243, 91, 139));
+                
+            }
+            else if (text.Text.Contains("-"))
+            {
+                text.Foreground = new SolidColorBrush(Color.FromArgb(255, 155, 184, 58));
+            }
+        }
+
+
+        ~MainWindow()
+        {
+            runThread = false;
+        }
+
+        /// <summary>
+        /// 拖拽窗口
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBlockMain_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
+
+        private void ActiveThread()
+        {
+            //每5秒一次
+            while(runThread)
+            {
+                Services.RAM.UpdateData();
+                var quotes = Services.RAM.GetQuotes();
+                ShowQuotes(quotes);
+                Thread.Sleep(1000 * 5);
+                //刷新界面
+            }
+        }
+
+        
+
+        private void ShowQuotes(RAMQUOTES quotes)
+        {
+            if (quotes.LastData != null)
+            {
+                this.Dispatcher.Invoke(() => {
+                    textNowAmount.Text = string.Format("{0:0.0000}", quotes.LastData.RAMPrice);
+
+                    textLastPercentage.Text = string.IsNullOrWhiteSpace(quotes.LastPercentage) ? "*" : quotes.LastPercentage;
+                    textOneMinPercentage.Text = string.IsNullOrWhiteSpace(quotes.OneMinPercentage) ? "*" : quotes.OneMinPercentage;
+                    textTenMinPercentage.Text = string.IsNullOrWhiteSpace(quotes.TenMinPercentage) ? "*" : quotes.TenMinPercentage;
+                    textOneHourPercentage.Text = string.IsNullOrWhiteSpace(quotes.OneHourPercentage) ? "*" : quotes.OneHourPercentage;
+
+                    textNowAmount.Foreground = textLastPercentage.Foreground;
+
+                });
             }
 
            
-
-
-
         }
+
+
 
 
 
