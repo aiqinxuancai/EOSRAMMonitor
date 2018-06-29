@@ -23,6 +23,10 @@ using System.Windows.Shapes;
 using System.Threading;
 using RamMonitor.Services;
 using System.ComponentModel;
+using ToastNotifications;
+using ToastNotifications.Lifetime;
+using ToastNotifications.Position;
+using ToastNotifications.Messages;
 
 namespace RamMonitor
 {
@@ -104,7 +108,22 @@ namespace RamMonitor
             }
         }
 
-        
+        /* * */
+        Notifier notifier = new Notifier(cfg =>
+        {
+
+            cfg.PositionProvider = new WindowPositionProvider(
+                parentWindow: Application.Current.MainWindow,
+                corner: Corner.BottomCenter,
+                offsetX: 0,
+                offsetY: 63);
+
+            cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
+                notificationLifetime: TimeSpan.FromSeconds(3),
+                maximumNotificationCount: MaximumNotificationCount.FromCount(5));
+
+            cfg.Dispatcher = Application.Current.Dispatcher;
+        });
 
         private void ShowQuotes(RAMQUOTES quotes)
         {
@@ -119,6 +138,10 @@ namespace RamMonitor
                     textOneHourPercentage.Text = string.IsNullOrWhiteSpace(quotes.OneHourPercentage) ? "*" : quotes.OneHourPercentage;
 
                     textNowAmount.Foreground = textLastPercentage.Foreground;
+
+
+                    //notifier.ShowInformation("哈哈");
+                    //notifier.ShowWarning("哈哈");
 
                 });
             }

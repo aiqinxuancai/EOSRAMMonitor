@@ -13,5 +13,10 @@ namespace RamMonitor
     /// </summary>
     public partial class App : Application
     {
+        App()
+        {
+            var s =  string.Format("{0:0.00}", -0.5d);
+
+        }
     }
 }

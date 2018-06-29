@@ -32,10 +32,40 @@ namespace RamMonitor.Services
     public class RAMQUOTES
     {
         public RAMDATA LastData { set; get; }
-        public string LastPercentage { set; get; }
-        public string OneMinPercentage { set; get; }
-        public string TenMinPercentage { set; get; }
-        public string OneHourPercentage { set; get; }
+        public string LastPercentage
+        {
+            get
+            {
+                return (LastPercentageDouble >= 0 ? "+" : "") + string.Format("{0:0.00}", LastPercentageDouble) + "%";
+            }
+        }
+        public string OneMinPercentage
+        {
+            get
+            {
+                return (OneMinPercentageDouble >= 0 ? "+" : "") + string.Format("{0:0.00}", OneMinPercentageDouble) + "%";
+            }
+        }
+        public string TenMinPercentage
+        {
+            get
+            {
+                return (TenMinPercentageDouble >= 0 ? "+" : "") + string.Format("{0:0.00}", TenMinPercentageDouble) + "%";
+            }
+        }
+        public string OneHourPercentage
+        {
+            get
+            {
+                return (OneHourPercentageDouble >= 0 ? "+" : "") + string.Format("{0:0.00}", OneHourPercentageDouble) + "%";
+            }
+        }
+
+
+        public Double LastPercentageDouble { set; get; }
+        public Double OneMinPercentageDouble { set; get; }
+        public Double TenMinPercentageDouble { set; get; }
+        public Double OneHourPercentageDouble { set; get; }
 
     }
 
@@ -158,38 +188,38 @@ namespace RamMonitor.Services
 
             if (lastLastData != null)
             {
-                quotes.LastPercentage = GetProportion(quotes.LastData.RAMPrice, lastLastData.RAMPrice);
+                quotes.LastPercentageDouble = GetProportion(quotes.LastData.RAMPrice, lastLastData.RAMPrice);
             }
 
             //计算一分钟的涨跌幅
             RAMDATA data = m_ramDataList.FindLast(a => Math.Abs((a.time - DateTime.Now).TotalSeconds) > 60 );
             if (data != null)
             {
-                quotes.OneMinPercentage = GetProportion(quotes.LastData.RAMPrice, data.RAMPrice);
+                quotes.OneMinPercentageDouble = GetProportion(quotes.LastData.RAMPrice, data.RAMPrice);
             }
             else
             {
-                quotes.OneMinPercentage = GetProportion(quotes.LastData.RAMPrice, GetFirstData().RAMPrice);
+                quotes.OneMinPercentageDouble = GetProportion(quotes.LastData.RAMPrice, GetFirstData().RAMPrice);
             }
 
             data = m_ramDataList.FindLast(a => Math.Abs((a.time - DateTime.Now).TotalSeconds) > 60 * 10 );
             if (data != null)
             {
-                quotes.TenMinPercentage = GetProportion(quotes.LastData.RAMPrice, data.RAMPrice);
+                quotes.TenMinPercentageDouble = GetProportion(quotes.LastData.RAMPrice, data.RAMPrice);
             }
             else
             {
-                quotes.TenMinPercentage = GetProportion(quotes.LastData.RAMPrice, GetFirstData().RAMPrice);
+                quotes.TenMinPercentageDouble = GetProportion(quotes.LastData.RAMPrice, GetFirstData().RAMPrice);
             }
 
             data = m_ramDataList.FindLast(a => Math.Abs((a.time - DateTime.Now).TotalSeconds) > 60 * 60 );
             if (data != null)
             {
-                quotes.OneHourPercentage = GetProportion(quotes.LastData.RAMPrice, data.RAMPrice);
+                quotes.OneHourPercentageDouble = GetProportion(quotes.LastData.RAMPrice, data.RAMPrice);
             }
             else
             {
-                quotes.OneHourPercentage = GetProportion(quotes.LastData.RAMPrice, GetFirstData().RAMPrice);
+                quotes.OneHourPercentageDouble = GetProportion(quotes.LastData.RAMPrice, GetFirstData().RAMPrice);
             }
 
             return quotes;
@@ -198,27 +228,25 @@ namespace RamMonitor.Services
         
 
 
-        public static string GetProportion(Double now, Double old)
+        public static Double GetProportion(Double now, Double old)
         {
             string text = "";
             Double proportion = now / old;
             if (proportion > 1) //涨
             {
                 proportion = (proportion - 1d) * 100;
-                text = "+" + string.Format("{0:0.00}", proportion) + "%";
                 Debug.WriteLine(now + "/" + old + "=" + text + " " + "(" + proportion + ")");
             }
             else if (proportion < 1d) //跌
             {
-                proportion = (1d - proportion) * 100;
-                text = "-" + string.Format("{0:0.00}", proportion) + "%";
+                proportion = -((1d - proportion) * 100);
                 Debug.WriteLine(now + "/" + old + "=" + text +" " +  "(" + proportion + ")");
             }
             else //无变化
             {
-                text = "+0.00%";
+                proportion = 0.0;
             }
-            return text;
+            return proportion;
         }
 
 
