@@ -89,9 +89,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Base\MahAppsNotification\MahAppsDisplayPart.xaml.cs">
+      <DependentUpon>MahAppsDisplayPart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Base\MahAppsNotification\MahAppsNotification.cs" />
+    <Compile Include="Base\MahAppsNotification\MahAppsNotificationExtensions.cs" />
     <Compile Include="Services\PowerShell.cs" />
     <Compile Include="Services\RAM.cs" />
     <Compile Include="Services\SuperNode.cs" />
+    <Page Include="Base\MahAppsNotification\MahAppsDisplayPart.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -133,7 +142,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Base\" />
     <Folder Include="Core\" />
   </ItemGroup>
   <ItemGroup>

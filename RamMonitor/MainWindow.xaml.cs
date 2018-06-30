@@ -27,6 +27,7 @@ using ToastNotifications;
 using ToastNotifications.Lifetime;
 using ToastNotifications.Position;
 using ToastNotifications.Messages;
+using CustomNotificationsExample.MahAppsNotification;
 
 namespace RamMonitor
 {
@@ -36,6 +37,30 @@ namespace RamMonitor
     public partial class MainWindow : MetroWindow
     {
         private bool runThread = true;
+
+        private DateTime m_lastNotifier = DateTime.Now;
+
+
+        private Notifier notifier = new Notifier(cfg =>
+        {
+            cfg.PositionProvider = new WindowPositionProvider(
+                parentWindow: Application.Current.MainWindow,
+                corner: Corner.BottomCenter,
+                offsetX: 0,
+                offsetY: 46);
+
+            cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
+                notificationLifetime: TimeSpan.FromSeconds(8),
+                maximumNotificationCount: MaximumNotificationCount.FromCount(1));
+
+            cfg.Dispatcher = Application.Current.Dispatcher;
+        });
+
+        //_notifier = new Notifier(cfg =>
+        //    {
+        //    cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(TimeSpan.FromSeconds(5), MaximumNotificationCount.FromCount(15));
+        //    cfg.PositionProvider = new PrimaryScreenPositionProvider(Corner.BottomRight, 10, 10);
+        //});
 
 
         public MainWindow()
@@ -108,22 +133,6 @@ namespace RamMonitor
             }
         }
 
-        /* * */
-        Notifier notifier = new Notifier(cfg =>
-        {
-
-            cfg.PositionProvider = new WindowPositionProvider(
-                parentWindow: Application.Current.MainWindow,
-                corner: Corner.BottomCenter,
-                offsetX: 0,
-                offsetY: 63);
-
-            cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
-                notificationLifetime: TimeSpan.FromSeconds(3),
-                maximumNotificationCount: MaximumNotificationCount.FromCount(5));
-
-            cfg.Dispatcher = Application.Current.Dispatcher;
-        });
 
         private void ShowQuotes(RAMQUOTES quotes)
         {
@@ -139,10 +148,15 @@ namespace RamMonitor
 
                     textNowAmount.Foreground = textLastPercentage.Foreground;
 
-
-                    //notifier.ShowInformation("哈哈");
-                    //notifier.ShowWarning("哈哈");
-
+                    //notifier.ShowMahAppsNotification("1分钟跌幅大于5%", "");
+                    if (quotes.OneMinPercentageDouble < -5.00)
+                    {
+                        if ((DateTime.Now - m_lastNotifier).TotalSeconds > 20)
+                        {
+                            m_lastNotifier = DateTime.Now;
+                            notifier.ShowMahAppsNotification("1分钟跌幅大于5%", "");
+                        }
+                    }
                 });
             }
 
